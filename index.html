@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laboratorio: Cálculo de Volumen de Agua</title>
     <style>
         :root {
@@ -16,22 +17,23 @@
             background-color: var(--bg);
             display: flex;
             justify-content: center;
-            padding: 20px;
+            padding: 10px; /* Reducido para móviles */
             margin: 0;
         }
 
         .container {
             background-color: white;
-            padding: 30px;
+            padding: 20px; /* Reducido para móviles */
             border-radius: 15px;
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
             max-width: 850px;
             width: 100%;
             text-align: center;
+            box-sizing: border-box;
         }
 
-        h2 { color: var(--primary); margin-bottom: 10px; }
-        p.intro { color: #666; margin-bottom: 25px; }
+        h2 { color: var(--primary); margin-bottom: 10px; font-size: 1.5em; }
+        p.intro { color: #666; margin-bottom: 25px; font-size: 0.9em; }
 
         .header-image {
             max-width: 100%;
@@ -51,7 +53,7 @@
 
         .box {
             background-color: #f9f9f9;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             border: 1px solid #eee;
         }
@@ -64,14 +66,16 @@
             flex-direction: column;
         }
 
-        label { font-weight: bold; margin-bottom: 5px; font-size: 0.95em; color: #444; }
+        label { font-weight: bold; margin-bottom: 5px; font-size: 0.9em; color: #444; }
 
         input {
-            padding: 10px;
+            padding: 12px;
             border: 2px solid #ccc;
             border-radius: 6px;
             font-size: 16px;
             transition: border-color 0.3s;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         input:focus { border-color: var(--info); outline: none; }
@@ -96,7 +100,7 @@
 
         .result-panel {
             margin-top: 30px;
-            padding: 25px;
+            padding: 20px;
             background-color: #e8f8f5;
             border-radius: 10px;
             border-left: 8px solid var(--accent);
@@ -104,28 +108,41 @@
             text-align: center;
         }
 
-        .result-panel p { margin: 5px 0; color: #16a085; }
-        .vol-value { font-size: 2.5em; font-weight: bold; display: block; margin-top: 10px; }
+        .result-panel p { margin: 5px 0; color: #16a085; font-size: 0.9em; }
+        .vol-value { font-size: 2em; font-weight: bold; display: block; margin-top: 10px; }
+
+        /* AJUSTES PARA MÓVILES */
+        @media (max-width: 600px) {
+            .main-grid {
+                grid-template-columns: 1fr; /* Pasa a una sola columna */
+            }
+            button {
+                grid-column: span 1; /* El botón ocupa su fila normal */
+            }
+            .vol-value {
+                font-size: 1.6em;
+            }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Abyss-Zero. Actividad 2 de FQ.</h2>
+    <h2>Práctica de Laboratorio: Curva de Llenado</h2>
     <p class="intro">Calcula el volumen de agua (h) basándote en las dimensiones fijas del vaso.</p>
 
     <img src="diagrama_final_laboratorio.png" alt="Esquema del vaso y fórmulas de rh y V(h)" class="header-image">
 
     <div class="main-grid">
         <div class="box">
-            <h4>1. Dimensiones del vaso</h4>
+            <h4>1. Dimensiones del Vaso</h4>
             <div class="input-group">
                 <label for="r_base">Radio Inferior (r) en cm:</label>
                 <input type="number" id="r_base" step="0.01" placeholder="Medida base">
             </div>
             <div class="input-group">
                 <label for="R_top">Radio Superior (R) en cm:</label>
-                <input type="number" id="R_top" step="0.01" placeholder="Medida boca">
+                <input type="number" id="R_top" step="0.01" placeholder="Medida radio superior">
             </div>
             <div class="input-group">
                 <label for="h_max">Altura máxima del vaso (hmax) en cm:</label>
@@ -134,7 +151,7 @@
         </div>
 
         <div class="box">
-            <h4>2. Medida del agua</h4>
+            <h4>2. Medida del Agua</h4>
             <div class="input-group">
                 <label for="h_agua">Altura del agua medida (h) en cm:</label>
                 <input type="number" id="h_agua" step="0.01" class="water-input" placeholder="Nivel actual">
@@ -151,19 +168,17 @@
         <p>Radio del nivel del agua calculado (r<sub>h</sub>): <strong><span id="rh_calculado">0</span> cm</strong></p>
         <p>El volumen de agua en el vaso es:</p>
         <span class="vol-value"><span id="total_vol">0</span> cm³</span>
-        <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.8;">(Nota: 1 cm³ equivale exactamente a 1 ml)</p>
+        <p style="margin-top: 15px; font-size: 0.8em; opacity: 0.8;">(Nota: 1 cm³ equivale exactamente a 1 ml)</p>
     </div>
 </div>
 
 <script>
     function realizarCalculo() {
-        // Captura de datos
         const r = parseFloat(document.getElementById('r_base').value);
         const R = parseFloat(document.getElementById('R_top').value);
         const hmax = parseFloat(document.getElementById('h_max').value);
         const h = parseFloat(document.getElementById('h_agua').value);
 
-        // Validación
         if ([r, R, hmax, h].some(isNaN) || h <= 0 || hmax <= 0) {
             alert("Por favor, completa todos los campos con valores positivos.");
             return;
@@ -173,18 +188,11 @@
             return;
         }
 
-        // --- CÁLCULO EN DOS PASOS SEGÚN LA IMAGEN ---
-
-        // Paso 1: Calcular rh (radio a la altura h)
         const rh = r + ((R - r) * h) / hmax;
-
-        // Paso 2: Calcular Volumen V(h)
-        // V = (PI * h / 3) * (r^2 + r*rh + rh^2)
         const PI = Math.PI;
         const sumaTerminos = (r * r) + (r * rh) + (rh * rh);
         const volumenFinal = (PI * h / 3) * sumaTerminos;
 
-        // Mostrar resultados
         document.getElementById('rh_calculado').innerText = rh.toFixed(2).replace('.', ',');
         document.getElementById('total_vol').innerText = volumenFinal.toLocaleString('es-ES', {
             minimumFractionDigits: 2,
